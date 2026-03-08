@@ -51,6 +51,12 @@ const Dashboard = () => {
                         <h3 style={estilos.tarjetaTitulo}>Tareas</h3>
                         <p style={estilos.tarjetaDesc}>Control de tareas asignadas</p>
                     </div>
+
+                    <div style={estilos.tarjeta} onClick={() => navigate('/conducta')}>
+                        <div style={estilos.icono}>😊</div>
+                        <h3 style={estilos.tarjetaTitulo}>Conducta</h3>
+                        <p style={estilos.tarjetaDesc}>Registro de comportamiento</p>
+                    </div>
                 </div>
             </div>
         </div>

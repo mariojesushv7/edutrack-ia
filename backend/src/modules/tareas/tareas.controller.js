@@ -26,31 +26,43 @@ const registrarTarea = async (req, res) => {
     }
 };
 
-const marcarTareaEntregada = async (req, res) => {
+const marcarEstadoTarea = async (req, res) => {
     try {
         const { id } = req.params;
+        const { entregada } = req.body;
 
         const resultado = await pool.query(
-            `UPDATE tareas SET entregada = true, fecha_entrega = CURRENT_DATE
-             WHERE id = $1
+            `UPDATE tareas SET entregada = $1, fecha_entrega = CASE WHEN $1 = true THEN CURRENT_DATE ELSE NULL END
+             WHERE id = $2
              RETURNING *`,
-            [id]
+            [entregada, id]
         );
 
         if (resultado.rows.length === 0) {
             return res.status(404).json({ mensaje: 'Tarea no encontrada' });
         }
 
+        const tarea = resultado.rows[0];
+
+        if (entregada === false) {
+            await pool.query(
+                `INSERT INTO notificaciones (usuario_id, tipo, mensaje, canal)
+                 SELECT tutor_id, 'tarea',
+                 'Su hijo/a no entregó la tarea de ' || $1 || ': ' || $2, 'email'
+                 FROM estudiantes WHERE id = $3 AND tutor_id IS NOT NULL`,
+                [tarea.materia, tarea.descripcion, tarea.estudiante_id]
+            );
+        }
+
         res.json({
-            mensaje: 'Tarea marcada como entregada',
-            tarea: resultado.rows[0]
+            mensaje: entregada ? 'Tarea marcada como entregada' : 'Tarea marcada como no entregada, padre notificado',
+            tarea
         });
 
     } catch (error) {
         res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
     }
 };
-
 const obtenerTareasPorEstudiante = async (req, res) => {
     try {
         const { id } = req.params;
@@ -114,4 +126,4 @@ const notificarTareasPendientes = async (req, res) => {
     }
 };
 
-module.exports = { registrarTarea, marcarTareaEntregada, obtenerTareasPorEstudiante, notificarTareasPendientes };
+module.exports = { registrarTarea, marcarEstadoTarea, obtenerTareasPorEstudiante, notificarTareasPendientes };

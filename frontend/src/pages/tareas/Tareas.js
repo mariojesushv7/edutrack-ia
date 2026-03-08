@@ -57,10 +57,10 @@ const Tareas = () => {
         }
     };
 
-    const marcarEntregada = async (tareaId) => {
+    const marcarEstado = async (tareaId, entregada) => {
         try {
-            await api.put(`/tareas/${tareaId}/entregar`);
-            setExito('Tarea marcada como entregada');
+            await api.put(`/tareas/${tareaId}/estado`, { entregada });
+            setExito(entregada ? 'Tarea marcada como entregada' : 'Padre notificado: tarea no entregada');
             setTimeout(() => setExito(''), 3000);
             seleccionarEstudiante(estudianteSeleccionado);
         } catch (err) {
@@ -183,9 +183,14 @@ const Tareas = () => {
                                                 {t.entregada ? (
                                                     <span style={estilos.badgeEntregada}>✓ Entregada</span>
                                                 ) : (
-                                                    <button onClick={() => marcarEntregada(t.id)} style={estilos.botonEntregar}>
-                                                        Marcar entregada
-                                                    </button>
+                                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                                        <button onClick={() => marcarEstado(t.id, true)} style={estilos.botonEntregar}>
+                                                            ✓ Entregó
+                                                        </button>
+                                                        <button onClick={() => marcarEstado(t.id, false)} style={{ ...estilos.botonEntregar, backgroundColor: '#dc2626' }}>
+                                                            ✗ No entregó
+                                                        </button>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>

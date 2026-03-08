@@ -9,6 +9,7 @@ const estudiantesRoutes = require('./modules/estudiantes/estudiantes.routes');
 const asistenciaRoutes = require('./modules/asistencia/asistencia.routes');
 const notasRoutes = require('./modules/notas/notas.routes');
 const tareasRoutes = require('./modules/tareas/tareas.routes');
+const conductaRoutes = require('./modules/conducta/conducta.routes');
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use('/api/estudiantes', estudiantesRoutes);
 app.use('/api/asistencia', asistenciaRoutes);
 app.use('/api/notas', notasRoutes);
 app.use('/api/tareas', tareasRoutes);
+app.use('/api/conducta', conductaRoutes);
 
 app.get('/', (req, res) => {
     res.json({ mensaje: 'EduTrack IA - API funcionando' });

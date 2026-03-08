@@ -26,16 +26,19 @@ const registrarAsistencia = async (req, res) => {
             [estudiante_id, docente_id, fecha, estado, observacion]
         );
 
-        if (estado === 'ausente') {
+        if (estado === 'ausente' || estado === 'tardanza') {
+            const mensaje = estado === 'ausente'
+                ? `Su hijo/a estuvo AUSENTE el día ${fecha}`
+                : `Su hijo/a llegó TARDE el día ${fecha}`;
+        
             await pool.query(
                 `INSERT INTO notificaciones (usuario_id, tipo, mensaje, canal)
-                 SELECT tutor_id, 'ausencia', 
-                 'Su hijo/a estuvo ausente el día ' || $1, 'email'
+                 SELECT tutor_id, 'ausencia', $1, 'email'
                  FROM estudiantes WHERE id = $2 AND tutor_id IS NOT NULL`,
-                [fecha, estudiante_id]
+                [mensaje, estudiante_id]
             );
         }
-
+        
         res.status(201).json({
             mensaje: 'Asistencia registrada exitosamente',
             asistencia: resultado.rows[0]
