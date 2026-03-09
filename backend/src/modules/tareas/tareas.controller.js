@@ -1,4 +1,5 @@
 const pool = require('../../config/database');
+const { enviarEmail } = require('../../config/email');
 
 const registrarTarea = async (req, res) => {
     try {
@@ -45,13 +46,30 @@ const marcarEstadoTarea = async (req, res) => {
         const tarea = resultado.rows[0];
 
         if (entregada === false) {
-            await pool.query(
-                `INSERT INTO notificaciones (usuario_id, tipo, mensaje, canal)
-                 SELECT tutor_id, 'tarea',
-                 'Su hijo/a no entregó la tarea de ' || $1 || ': ' || $2, 'email'
-                 FROM estudiantes WHERE id = $3 AND tutor_id IS NOT NULL`,
-                [tarea.materia, tarea.descripcion, tarea.estudiante_id]
+            const mensaje = `Su hijo/a no entregó la tarea de ${tarea.materia}: ${tarea.descripcion}`;
+
+            const tutor = await pool.query(
+                `SELECT u.email, e.nombre, e.apellido
+                 FROM estudiantes e
+                 JOIN usuarios u ON e.tutor_id = u.id
+                 WHERE e.id = $1 AND e.tutor_id IS NOT NULL`,
+                [tarea.estudiante_id]
             );
+
+            if (tutor.rows.length > 0) {
+                await pool.query(
+                    `INSERT INTO notificaciones (usuario_id, tipo, mensaje, canal)
+                     SELECT tutor_id, 'tarea', $1, 'email'
+                     FROM estudiantes WHERE id = $2 AND tutor_id IS NOT NULL`,
+                    [mensaje, tarea.estudiante_id]
+                );
+
+                await enviarEmail(
+                    tutor.rows[0].email,
+                    `EduTrack: Tarea no entregada de ${tutor.rows[0].nombre} ${tutor.rows[0].apellido}`,
+                    mensaje
+                );
+            }
         }
 
         res.json({
@@ -63,6 +81,7 @@ const marcarEstadoTarea = async (req, res) => {
         res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
     }
 };
+
 const obtenerTareasPorEstudiante = async (req, res) => {
     try {
         const { id } = req.params;

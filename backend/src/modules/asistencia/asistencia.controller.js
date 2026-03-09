@@ -1,5 +1,5 @@
 const pool = require('../../config/database');
-
+const { enviarEmail } = require('../../config/email');
 const registrarAsistencia = async (req, res) => {
     try {
         const { estudiante_id, estado, observacion } = req.body;
@@ -31,14 +31,29 @@ const registrarAsistencia = async (req, res) => {
                 ? `Su hijo/a estuvo AUSENTE el día ${fecha}`
                 : `Su hijo/a llegó TARDE el día ${fecha}`;
         
-            await pool.query(
-                `INSERT INTO notificaciones (usuario_id, tipo, mensaje, canal)
-                 SELECT tutor_id, 'ausencia', $1, 'email'
-                 FROM estudiantes WHERE id = $2 AND tutor_id IS NOT NULL`,
-                [mensaje, estudiante_id]
+            const tutor = await pool.query(
+                `SELECT u.email, e.nombre, e.apellido
+                 FROM estudiantes e
+                 JOIN usuarios u ON e.tutor_id = u.id
+                 WHERE e.id = $1 AND e.tutor_id IS NOT NULL`,
+                [estudiante_id]
             );
-        }
         
+            if (tutor.rows.length > 0) {
+                await pool.query(
+                    `INSERT INTO notificaciones (usuario_id, tipo, mensaje, canal)
+                     SELECT tutor_id, 'ausencia', $1, 'email'
+                     FROM estudiantes WHERE id = $2 AND tutor_id IS NOT NULL`,
+                    [mensaje, estudiante_id]
+                );
+        
+                await enviarEmail(
+                    tutor.rows[0].email,
+                    `EduTrack: Asistencia de ${tutor.rows[0].nombre} ${tutor.rows[0].apellido}`,
+                    mensaje
+                );
+            }
+        }
         res.status(201).json({
             mensaje: 'Asistencia registrada exitosamente',
             asistencia: resultado.rows[0]
