@@ -56,10 +56,16 @@ const Dashboard = () => {
                         <div style={estilos.icono}>😊</div>
                         <h3 style={estilos.tarjetaTitulo}>Conducta</h3>
                         <p style={estilos.tarjetaDesc}>Registro de comportamiento</p>
+                        </div>  
+                        <div style={estilos.tarjeta} onClick={() => navigate('/ia')}>
+    <div style={estilos.icono}>🤖</div>
+    <h3 style={estilos.tarjetaTitulo}>Análisis IA</h3>
+    <p style={estilos.tarjetaDesc}>Detección de riesgo académico</p>
+</div>
                     </div>
                 </div>
             </div>
-        </div>
+        
     );
 };
 
