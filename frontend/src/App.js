@@ -7,6 +7,7 @@ import Asistencia from './pages/asistencia/Asistencia';
 import Notas from './pages/notas/Notas';
 import Tareas from './pages/tareas/Tareas';
 import Conducta from './pages/conducta/Conducta';
+import Asignaciones from './pages/asignaciones/Asignaciones';
 import Ia from './pages/ia/Ia';
 
 const RutaProtegida = ({ children }) => {
@@ -30,6 +31,11 @@ const App = () => {
                             <Estudiantes />
                         </RutaProtegida>
                     } />
+                    <Route path="/asignaciones" element={
+    <RutaProtegida>
+        <Asignaciones />
+    </RutaProtegida>
+} />
                     <Route path="/asistencia" element={
                         <RutaProtegida>
                             <Asistencia />

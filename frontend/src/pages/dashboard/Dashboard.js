@@ -40,6 +40,12 @@ const Dashboard = () => {
                         <p style={estilos.tarjetaDesc}>Registrar asistencia diaria</p>
                     </div>
 
+                    <div style={estilos.tarjeta} onClick={() => navigate('/asignaciones')}>
+    <div style={estilos.icono}>👨‍🏫</div>
+    <h3 style={estilos.tarjetaTitulo}>Asignaciones</h3>
+    <p style={estilos.tarjetaDesc}>Asignar estudiantes a docentes</p>
+</div>
+
                     <div style={estilos.tarjeta} onClick={() => navigate('/notas')}>
                         <div style={estilos.icono}>📝</div>
                         <h3 style={estilos.tarjetaTitulo}>Notas</h3>
