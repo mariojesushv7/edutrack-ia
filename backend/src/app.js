@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 
+const auditoriaRoutes = require('./modules/auditoria/auditoria.routes');
 const asignacionesRoutes = require('./modules/asignaciones/asignaciones.routes');
 const authRoutes = require('./modules/auth/auth.routes');
 const usuariosRoutes = require('./modules/usuarios/usuarios.routes');
@@ -21,6 +22,7 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
+app.use('/api/auditoria', auditoriaRoutes);
 app.use('/api/asignaciones', asignacionesRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/usuarios', usuariosRoutes);

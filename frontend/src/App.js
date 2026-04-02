@@ -9,6 +9,7 @@ import Tareas from './pages/tareas/Tareas';
 import Conducta from './pages/conducta/Conducta';
 import Asignaciones from './pages/asignaciones/Asignaciones';
 import Ia from './pages/ia/Ia';
+import Auditoria from './pages/auditoria/Auditoria';
 
 const RutaProtegida = ({ children }) => {
     const { usuario } = useAuth();
@@ -34,6 +35,11 @@ const App = () => {
                     <Route path="/asignaciones" element={
     <RutaProtegida>
         <Asignaciones />
+    </RutaProtegida>
+} />
+<Route path="/auditoria" element={
+    <RutaProtegida>
+        <Auditoria />
     </RutaProtegida>
 } />
                     <Route path="/asistencia" element={
