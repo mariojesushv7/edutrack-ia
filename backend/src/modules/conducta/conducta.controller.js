@@ -45,7 +45,11 @@ const registrarConducta = async (req, res) => {
                 );
             }
         }
-
+        await pool.query(
+            `INSERT INTO auditoria (usuario_id, accion, tabla_afectada, registro_id, valor_nuevo, ip)
+             VALUES ($1, 'crear', 'conducta', $2, $3, $4)`,
+            [docente_id, resultado.rows[0].id, JSON.stringify(resultado.rows[0]), req.ip]
+        );
         res.status(201).json({
             mensaje: 'Conducta registrada exitosamente',
             conducta: resultado.rows[0]
