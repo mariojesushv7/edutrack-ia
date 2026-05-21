@@ -61,148 +61,163 @@ const Estudiantes = () => {
 
     return (
         <div style={estilos.contenedor}>
-            <div style={estilos.navbar}>
-                <button onClick={() => navigate('/dashboard')} style={estilos.botonVolver}>← Volver</button>
-                <div style={estilos.navTitulo}>
-                    <span style={estilos.navIcono}>👨‍🎓</span>
-                    <h2 style={estilos.titulo}>Estudiantes</h2>
+            <div style={estilos.fondo} />
+            <div style={estilos.circulo1} />
+
+            <div style={estilos.inner}>
+                <div style={estilos.navbar}>
+                    <div style={estilos.navIzq}>
+                        <button onClick={() => navigate('/dashboard')} style={estilos.botonVolver}>
+                            ← Volver
+                        </button>
+                        <div style={estilos.navTitulo}>
+                            <div style={estilos.navTituloTexto}>Estudiantes</div>
+                            <div style={estilos.navSubtitulo}>Gestión y registro de estudiantes</div>
+                        </div>
+                    </div>
+                    {usuario?.rol === 'director' && (
+                        <button onClick={() => setMostrarFormulario(!mostrarFormulario)} style={estilos.botonAgregar}>
+                            + Nuevo estudiante
+                        </button>
+                    )}
                 </div>
-                {usuario?.rol === 'director' && (
-                    <button onClick={() => setMostrarFormulario(!mostrarFormulario)} style={estilos.botonAgregar}>
-                        + Agregar estudiante
-                    </button>
-                )}
-            </div>
 
-            <div style={estilos.contenido}>
-                {error && <div style={estilos.error}>⚠️ {error}</div>}
-                {exito && <div style={estilos.exito}>✓ {exito}</div>}
+                <div style={estilos.contenido}>
+                    {error && <div style={estilos.error}>⚠ {error}</div>}
+                    {exito && <div style={estilos.exito}>✓ {exito}</div>}
 
-                {mostrarFormulario && (
-                    <div style={estilos.formularioCard}>
-                        <h3 style={estilos.formTitulo}>📋 Nuevo Estudiante</h3>
-                        <form onSubmit={handleSubmit}>
-                            <div style={estilos.grid}>
-                                <div style={estilos.campo}>
-                                    <label style={estilos.label}>Nombre</label>
-                                    <input type="text" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} style={estilos.input} placeholder="Nombre del estudiante" required />
-                                </div>
-                                <div style={estilos.campo}>
-                                    <label style={estilos.label}>Apellido</label>
-                                    <input type="text" value={form.apellido} onChange={(e) => setForm({ ...form, apellido: e.target.value })} style={estilos.input} placeholder="Apellido del estudiante" required />
-                                </div>
-                                <div style={estilos.campo}>
-                                    <label style={estilos.label}>CI</label>
-                                    <input type="text" value={form.ci} onChange={(e) => setForm({ ...form, ci: e.target.value })} style={estilos.input} placeholder="Cédula de identidad" required />
-                                </div>
-                                <div style={estilos.campo}>
-                                    <label style={estilos.label}>Fecha de nacimiento</label>
-                                    <input type="date" value={form.fecha_nacimiento} onChange={(e) => setForm({ ...form, fecha_nacimiento: e.target.value })} style={estilos.input} />
-                                </div>
-                                <div style={estilos.campo}>
-                                    <label style={estilos.label}>Grado</label>
-                                    <select value={form.grado} onChange={(e) => setForm({ ...form, grado: e.target.value })} style={estilos.input} required>
-                                        <option value="">Seleccionar grado...</option>
-                                        {grados.map(g => <option key={g} value={g}>{g} Grado</option>)}
-                                    </select>
-                                </div>
-                                <div style={estilos.campo}>
-                                    <label style={estilos.label}>Sección</label>
-                                    <select value={form.seccion} onChange={(e) => setForm({ ...form, seccion: e.target.value })} style={estilos.input} required>
-                                        <option value="">Seleccionar sección...</option>
-                                        {secciones.map(s => <option key={s} value={s}>Sección {s}</option>)}
-                                    </select>
-                                </div>
-
-                                <div style={{ ...estilos.campo, gridColumn: 'span 3' }}>
-                                    <label style={estilos.label}>Padre/Tutor existente en el sistema</label>
-                                    <select
-                                        value={form.tutor_id}
-                                        onChange={(e) => setForm({ ...form, tutor_id: e.target.value, email_padre: '', nombre_padre: '', apellido_padre: '' })}
-                                        style={estilos.input}
-                                    >
-                                        <option value="">Seleccionar tutor existente...</option>
-                                        {tutores.map(t => (
-                                            <option key={t.id} value={t.id}>{t.nombre} {t.apellido} - {t.email}</option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                {!form.tutor_id && (
-                                    <>
-                                        <div style={{ ...estilos.campo, gridColumn: 'span 3' }}>
-                                            <div style={estilos.separador}>
-                                                <div style={estilos.separadorLinea} />
-                                                <span style={estilos.separadorTexto}>O registrar nuevo padre de familia</span>
-                                                <div style={estilos.separadorLinea} />
-                                            </div>
-                                        </div>
-                                        <div style={estilos.campo}>
-                                            <label style={estilos.label}>Email del padre</label>
-                                            <input type="email" value={form.email_padre} onChange={(e) => setForm({ ...form, email_padre: e.target.value })} style={estilos.input} placeholder="padre@email.com" />
-                                        </div>
-                                        <div style={estilos.campo}>
-                                            <label style={estilos.label}>Nombre del padre</label>
-                                            <input type="text" value={form.nombre_padre} onChange={(e) => setForm({ ...form, nombre_padre: e.target.value })} style={estilos.input} placeholder="Nombre" />
-                                        </div>
-                                        <div style={estilos.campo}>
-                                            <label style={estilos.label}>Apellido del padre</label>
-                                            <input type="text" value={form.apellido_padre} onChange={(e) => setForm({ ...form, apellido_padre: e.target.value })} style={estilos.input} placeholder="Apellido" />
-                                        </div>
-                                        {form.email_padre && (
+                    {mostrarFormulario && (
+                        <div style={estilos.formularioCard}>
+                            <h3 style={estilos.formTitulo}>Registrar nuevo estudiante</h3>
+                            <form onSubmit={handleSubmit}>
+                                <div style={estilos.grid}>
+                                    <div style={estilos.campo}>
+                                        <label style={estilos.label}>Nombre</label>
+                                        <input type="text" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} style={estilos.input} placeholder="Nombre" required />
+                                    </div>
+                                    <div style={estilos.campo}>
+                                        <label style={estilos.label}>Apellido</label>
+                                        <input type="text" value={form.apellido} onChange={(e) => setForm({ ...form, apellido: e.target.value })} style={estilos.input} placeholder="Apellido" required />
+                                    </div>
+                                    <div style={estilos.campo}>
+                                        <label style={estilos.label}>C.I.</label>
+                                        <input type="text" value={form.ci} onChange={(e) => setForm({ ...form, ci: e.target.value })} style={estilos.input} placeholder="Cédula de identidad" required />
+                                    </div>
+                                    <div style={estilos.campo}>
+                                        <label style={estilos.label}>Fecha de nacimiento</label>
+                                        <input type="date" value={form.fecha_nacimiento} onChange={(e) => setForm({ ...form, fecha_nacimiento: e.target.value })} style={estilos.input} />
+                                    </div>
+                                    <div style={estilos.campo}>
+                                        <label style={estilos.label}>Grado</label>
+                                        <select value={form.grado} onChange={(e) => setForm({ ...form, grado: e.target.value })} style={estilos.input} required>
+                                            <option value="">Seleccionar...</option>
+                                            {grados.map(g => <option key={g} value={g}>{g} Grado</option>)}
+                                        </select>
+                                    </div>
+                                    <div style={estilos.campo}>
+                                        <label style={estilos.label}>Sección</label>
+                                        <select value={form.seccion} onChange={(e) => setForm({ ...form, seccion: e.target.value })} style={estilos.input} required>
+                                            <option value="">Seleccionar...</option>
+                                            {secciones.map(s => <option key={s} value={s}>Sección {s}</option>)}
+                                        </select>
+                                    </div>
+                                    <div style={{ ...estilos.campo, gridColumn: 'span 3' }}>
+                                        <label style={estilos.label}>Tutor existente en el sistema</label>
+                                        <select value={form.tutor_id} onChange={(e) => setForm({ ...form, tutor_id: e.target.value, email_padre: '', nombre_padre: '', apellido_padre: '' })} style={estilos.input}>
+                                            <option value="">Seleccionar tutor existente...</option>
+                                            {tutores.map(t => <option key={t.id} value={t.id}>{t.nombre} {t.apellido} — {t.email}</option>)}
+                                        </select>
+                                    </div>
+                                    {!form.tutor_id && (
+                                        <>
                                             <div style={{ ...estilos.campo, gridColumn: 'span 3' }}>
-                                                <div style={estilos.infoEmail}>
-                                                    📧 Se enviará un email a <strong>{form.email_padre}</strong> con las credenciales de acceso a la app móvil
+                                                <div style={estilos.separador}>
+                                                    <div style={estilos.separadorLinea} />
+                                                    <span style={estilos.separadorTexto}>O REGISTRAR NUEVO PADRE</span>
+                                                    <div style={estilos.separadorLinea} />
                                                 </div>
                                             </div>
-                                        )}
-                                    </>
-                                )}
-                            </div>
-                            <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
-                                <button type="submit" style={estilos.botonGuardar}>✓ Guardar estudiante</button>
-                                <button type="button" onClick={() => setMostrarFormulario(false)} style={estilos.botonCancelar}>Cancelar</button>
-                            </div>
-                        </form>
-                    </div>
-                )}
-
-                <div style={estilos.panelLista}>
-                    <div style={estilos.panelHeader}>
-                        <div style={estilos.stats}>
-                            <span style={estilos.statNum}>{estudiantes.length}</span>
-                            <span style={estilos.statLabel}>estudiantes registrados</span>
-                        </div>
-                        <input
-                            type="text"
-                            placeholder="🔍 Buscar por nombre o CI..."
-                            value={busqueda}
-                            onChange={(e) => setBusqueda(e.target.value)}
-                            style={estilos.buscador}
-                        />
-                    </div>
-
-                    {cargando ? (
-                        <p style={{ textAlign: 'center', color: '#64748b', padding: '40px' }}>Cargando...</p>
-                    ) : estudiantesFiltrados.length === 0 ? (
-                        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px' }}>No se encontraron estudiantes</p>
-                    ) : (
-                        <div style={estilos.listaEstudiantes}>
-                            {estudiantesFiltrados.map(e => (
-                                <div key={e.id} style={estilos.tarjetaEstudiante}>
-                                    <div style={estilos.estudianteAvatar}>{e.nombre[0]}{e.apellido[0]}</div>
-                                    <div style={estilos.estudianteInfo}>
-                                        <div style={estilos.estudianteNombre}>{e.nombre} {e.apellido}</div>
-                                        <div style={estilos.estudianteDatos}>CI: {e.ci} · Grado {e.grado} · Sección {e.seccion}</div>
-                                        <div style={estilos.estudianteTutor}>
-                                            👤 {e.tutor_nombre ? `${e.tutor_nombre} ${e.tutor_apellido} · ${e.tutor_email}` : 'Sin tutor asignado'}
-                                        </div>
-                                    </div>
-                                    <div style={estilos.gradoBadge}>{e.grado}</div>
+                                            <div style={estilos.campo}>
+                                                <label style={estilos.label}>Email del padre</label>
+                                                <input type="email" value={form.email_padre} onChange={(e) => setForm({ ...form, email_padre: e.target.value })} style={estilos.input} placeholder="padre@email.com" />
+                                            </div>
+                                            <div style={estilos.campo}>
+                                                <label style={estilos.label}>Nombre del padre</label>
+                                                <input type="text" value={form.nombre_padre} onChange={(e) => setForm({ ...form, nombre_padre: e.target.value })} style={estilos.input} placeholder="Nombre" />
+                                            </div>
+                                            <div style={estilos.campo}>
+                                                <label style={estilos.label}>Apellido del padre</label>
+                                                <input type="text" value={form.apellido_padre} onChange={(e) => setForm({ ...form, apellido_padre: e.target.value })} style={estilos.input} placeholder="Apellido" />
+                                            </div>
+                                            {form.email_padre && (
+                                                <div style={{ ...estilos.campo, gridColumn: 'span 3' }}>
+                                                    <div style={estilos.infoEmail}>
+                                                        Se enviará un correo a <strong>{form.email_padre}</strong> con las credenciales de acceso a la app móvil
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
                                 </div>
-                            ))}
+                                <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                                    <button type="submit" style={estilos.botonGuardar}>Guardar estudiante</button>
+                                    <button type="button" onClick={() => setMostrarFormulario(false)} style={estilos.botonCancelar}>Cancelar</button>
+                                </div>
+                            </form>
                         </div>
                     )}
+
+                    <div style={estilos.panelLista}>
+                        <div style={estilos.panelHeader}>
+                            <div style={estilos.stats}>
+                                <span style={estilos.statNum}>{estudiantes.length}</span>
+                                <span style={estilos.statLabel}>estudiantes registrados</span>
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Buscar por nombre o C.I..."
+                                value={busqueda}
+                                onChange={(e) => setBusqueda(e.target.value)}
+                                style={estilos.buscador}
+                            />
+                        </div>
+
+                        {cargando ? (
+                            <p style={estilos.vacio}>Cargando...</p>
+                        ) : estudiantesFiltrados.length === 0 ? (
+                            <p style={estilos.vacio}>No se encontraron estudiantes</p>
+                        ) : (
+                            <div style={estilos.listaEstudiantes}>
+                                <div style={estilos.tablaHeader}>
+                                    <span style={{ flex: 2 }}>Estudiante</span>
+                                    <span style={{ flex: 1 }}>C.I.</span>
+                                    <span style={{ flex: 1 }}>Grado</span>
+                                    <span style={{ flex: 2 }}>Tutor</span>
+                                </div>
+                                {estudiantesFiltrados.map(e => (
+                                    <div key={e.id} style={estilos.fila}>
+                                        <div style={{ flex: 2, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <div style={estilos.avatar}>{e.nombre[0]}{e.apellido[0]}</div>
+                                            <div>
+                                                <div style={estilos.nombreEstudiante}>{e.nombre} {e.apellido}</div>
+                                            </div>
+                                        </div>
+                                        <div style={{ flex: 1, color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>{e.ci}</div>
+                                        <div style={{ flex: 1 }}>
+                                            <span style={estilos.gradoBadge}>{e.grado} — {e.seccion}</span>
+                                        </div>
+                                        <div style={{ flex: 2, color: 'rgba(255,255,255,0.45)', fontSize: '13px' }}>
+                                            {e.tutor_nombre ? `${e.tutor_nombre} ${e.tutor_apellido}` : 'Sin tutor'}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div style={estilos.footer}>
+                    <span>© {new Date().getFullYear()} Unidad Educativa Adventista Salomón</span>
                 </div>
             </div>
         </div>
@@ -210,42 +225,46 @@ const Estudiantes = () => {
 };
 
 const estilos = {
-    contenedor: { minHeight: '100vh', backgroundColor: '#f0f4f8' },
-    navbar: { backgroundColor: 'white', padding: '16px 32px', display: 'flex', alignItems: 'center', gap: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', position: 'sticky', top: 0, zIndex: 100 },
-    botonVolver: { background: 'none', border: '1px solid #e2e8f0', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', color: '#374151', fontSize: '14px' },
-    navTitulo: { display: 'flex', alignItems: 'center', gap: '10px', flex: 1 },
-    navIcono: { fontSize: '24px' },
-    titulo: { color: '#1e293b', margin: 0, fontSize: '20px', fontWeight: '700' },
-    botonAgregar: { backgroundColor: '#1e40af', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '14px' },
-    contenido: { padding: '24px 32px' },
-    error: { backgroundColor: '#fee2e2', color: '#dc2626', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' },
-    exito: { backgroundColor: '#dcfce7', color: '#16a34a', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' },
-    formularioCard: { backgroundColor: 'white', padding: '24px', borderRadius: '14px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' },
-    formTitulo: { color: '#1e40af', marginTop: 0, fontSize: '16px' },
-    grid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' },
+    contenedor: { minHeight: '100vh', background: 'linear-gradient(140deg, #000d2e 0%, #001a5c 40%, #002d8a 100%)', position: 'relative', overflow: 'hidden' },
+    fondo: { position: 'absolute', inset: 0, background: `repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.012) 40px, rgba(255,255,255,0.012) 41px), repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.012) 40px, rgba(255,255,255,0.012) 41px)` },
+    circulo1: { position: 'absolute', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,80,220,0.12) 0%, transparent 65%)', filter: 'blur(80px)', top: '-200px', right: '-150px' },
+    inner: { position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' },
+    navbar: { backgroundColor: 'rgba(0,8,30,0.7)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '14px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+    navIzq: { display: 'flex', alignItems: 'center', gap: '20px' },
+    botonVolver: { backgroundColor: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)', padding: '7px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '500' },
+    navTitulo: {},
+    navTituloTexto: { color: 'white', fontWeight: '700', fontSize: '16px' },
+    navSubtitulo: { color: 'rgba(255,255,255,0.35)', fontSize: '11px', marginTop: '2px' },
+    botonAgregar: { backgroundColor: '#FFD700', color: '#001a5c', border: 'none', padding: '9px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', letterSpacing: '0.3px' },
+    contenido: { padding: '32px 40px', flex: 1 },
+    error: { backgroundColor: 'rgba(220,38,38,0.12)', border: '1px solid rgba(220,38,38,0.25)', color: '#fca5a5', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '13px' },
+    exito: { backgroundColor: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.25)', color: '#6ee7b7', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '13px' },
+    formularioCard: { backgroundColor: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '28px', marginBottom: '24px' },
+    formTitulo: { color: 'white', fontSize: '15px', fontWeight: '700', margin: '0 0 20px', letterSpacing: '-0.2px' },
+    grid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' },
     campo: { display: 'flex', flexDirection: 'column' },
-    label: { fontSize: '13px', color: '#374151', marginBottom: '6px', fontWeight: '600' },
-    input: { padding: '10px 12px', borderRadius: '8px', border: '1.5px solid #e2e8f0', fontSize: '14px', outline: 'none' },
-    separador: { display: 'flex', alignItems: 'center', gap: '12px', margin: '4px 0' },
-    separadorLinea: { flex: 1, height: '1px', backgroundColor: '#e2e8f0' },
-    separadorTexto: { fontSize: '12px', color: '#94a3b8', fontWeight: '600', whiteSpace: 'nowrap' },
-    infoEmail: { backgroundColor: '#dbeafe', color: '#1e40af', padding: '10px 14px', borderRadius: '8px', fontSize: '13px' },
-    botonGuardar: { backgroundColor: '#16a34a', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '14px' },
-    botonCancelar: { backgroundColor: '#f1f5f9', color: '#64748b', border: 'none', padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '14px' },
-    panelLista: { backgroundColor: 'white', borderRadius: '14px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' },
-    panelHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' },
+    label: { fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '6px', fontWeight: '600', letterSpacing: '0.5px', textTransform: 'uppercase' },
+    input: { padding: '10px 14px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '14px', color: 'white', outline: 'none' },
+    separador: { display: 'flex', alignItems: 'center', gap: '12px' },
+    separadorLinea: { flex: 1, height: '1px', backgroundColor: 'rgba(255,255,255,0.06)' },
+    separadorTexto: { color: 'rgba(255,255,255,0.2)', fontSize: '10px', fontWeight: '700', letterSpacing: '2px', whiteSpace: 'nowrap' },
+    infoEmail: { backgroundColor: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.2)', color: '#93c5fd', padding: '10px 14px', borderRadius: '8px', fontSize: '12px' },
+    botonGuardar: { backgroundColor: '#FFD700', color: '#001a5c', border: 'none', padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '13px' },
+    botonCancelar: { backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: '500', fontSize: '13px' },
+    panelLista: { backgroundColor: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', overflow: 'hidden' },
+    panelHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)' },
     stats: { display: 'flex', alignItems: 'baseline', gap: '8px' },
-    statNum: { fontSize: '28px', fontWeight: '800', color: '#1e40af' },
-    statLabel: { fontSize: '14px', color: '#64748b' },
-    buscador: { padding: '10px 16px', borderRadius: '8px', border: '1.5px solid #e2e8f0', fontSize: '14px', width: '280px', outline: 'none' },
-    listaEstudiantes: { display: 'flex', flexDirection: 'column', gap: '10px' },
-    tarjetaEstudiante: { display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px', border: '1px solid #f1f5f9', borderRadius: '10px' },
-    estudianteAvatar: { width: '44px', height: '44px', borderRadius: '50%', backgroundColor: '#dbeafe', color: '#1e40af', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '15px', flexShrink: 0 },
-    estudianteInfo: { flex: 1 },
-    estudianteNombre: { fontWeight: '700', color: '#1e293b', fontSize: '15px' },
-    estudianteDatos: { color: '#64748b', fontSize: '13px', marginTop: '2px' },
-    estudianteTutor: { color: '#94a3b8', fontSize: '12px', marginTop: '2px' },
-    gradoBadge: { backgroundColor: '#dbeafe', color: '#1e40af', padding: '4px 12px', borderRadius: '20px', fontSize: '13px', fontWeight: '700' },
+    statNum: { fontSize: '26px', fontWeight: '800', color: '#FFD700' },
+    statLabel: { fontSize: '13px', color: 'rgba(255,255,255,0.35)' },
+    buscador: { padding: '9px 16px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '13px', color: 'white', outline: 'none', width: '260px' },
+    listaEstudiantes: {},
+    tablaHeader: { display: 'flex', padding: '10px 24px', borderBottom: '1px solid rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.25)', fontSize: '11px', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase' },
+    fila: { display: 'flex', alignItems: 'center', padding: '14px 24px', borderBottom: '1px solid rgba(255,255,255,0.04)', transition: 'background 0.2s' },
+    avatar: { width: '36px', height: '36px', borderRadius: '8px', backgroundColor: 'rgba(255,215,0,0.15)', color: '#FFD700', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '13px', flexShrink: 0 },
+    nombreEstudiante: { color: 'white', fontSize: '14px', fontWeight: '600' },
+    gradoBadge: { backgroundColor: 'rgba(96,165,250,0.12)', color: '#93c5fd', padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' },
+    vacio: { textAlign: 'center', color: 'rgba(255,255,255,0.25)', padding: '40px', fontSize: '14px' },
+    footer: { display: 'flex', justifyContent: 'center', padding: '14px 40px', color: 'rgba(255,255,255,0.15)', fontSize: '11px', borderTop: '1px solid rgba(255,255,255,0.05)' },
 };
 
 export default Estudiantes;

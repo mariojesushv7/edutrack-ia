@@ -37,11 +37,4 @@ app.use('/api/notificaciones', notificacionesRoutes);
 app.get('/', (req, res) => {
     res.json({ mensaje: 'EduTrack IA - API funcionando' });
 });
-
-app.get('/api/test-cron', async (req, res) => {
-    const { ejecutarAnalisisMensual } = require('./cron/tareas');
-    await ejecutarAnalisisMensual();
-    res.json({ mensaje: 'Análisis ejecutado' });
-});
-
 module.exports = app;

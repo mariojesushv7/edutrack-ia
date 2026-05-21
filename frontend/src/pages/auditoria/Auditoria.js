@@ -9,39 +9,29 @@ const Auditoria = () => {
     const [filtro, setFiltro] = useState('');
     const navigate = useNavigate();
 
-    useEffect(() => {
-        cargarAuditoria();
-    }, []);
+    useEffect(() => { cargarAuditoria(); }, []);
 
     const cargarAuditoria = async () => {
         try {
-            const respuesta = await api.get('/auditoria');
-            setRegistros(respuesta.data);
-        } catch (err) {
-            setError('Error al cargar auditoría');
-        } finally {
-            setCargando(false);
-        }
+            const r = await api.get('/auditoria');
+            setRegistros(r.data);
+        } catch { setError('Error al cargar auditoría'); }
+        finally { setCargando(false); }
     };
 
     const colorAccion = (accion) => {
-        if (accion === 'crear') return { bg: '#dcfce7', color: '#16a34a', icon: '➕' };
-        if (accion === 'modificar') return { bg: '#fef3c7', color: '#d97706', icon: '✏️' };
-        return { bg: '#fee2e2', color: '#dc2626', icon: '🗑️' };
+        if (accion === 'crear') return { color: '#34d399', bg: 'rgba(52,211,153,0.1)', border: 'rgba(52,211,153,0.2)' };
+        if (accion === 'modificar') return { color: '#fbbf24', bg: 'rgba(251,191,36,0.1)', border: 'rgba(251,191,36,0.2)' };
+        return { color: '#f87171', bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.2)' };
     };
 
     const iconoTabla = (tabla) => {
-        if (tabla === 'notas') return '📝';
-        if (tabla === 'asistencia') return '📋';
-        if (tabla === 'tareas') return '📚';
-        if (tabla === 'conducta') return '😊';
-        if (tabla === 'estudiantes') return '👨‍🎓';
-        return '📄';
+        const iconos = { notas: 'N', asistencia: 'A', tareas: 'T', conducta: 'C', estudiantes: 'E' };
+        return iconos[tabla] || '·';
     };
 
     const registrosFiltrados = registros.filter(r =>
-        `${r.usuario_nombre} ${r.usuario_apellido} ${r.tabla_afectada} ${r.accion}`
-            .toLowerCase().includes(filtro.toLowerCase())
+        `${r.usuario_nombre} ${r.usuario_apellido} ${r.tabla_afectada} ${r.accion}`.toLowerCase().includes(filtro.toLowerCase())
     );
 
     const stats = {
@@ -52,123 +42,124 @@ const Auditoria = () => {
 
     return (
         <div style={estilos.contenedor}>
-            <div style={estilos.navbar}>
-                <button onClick={() => navigate('/dashboard')} style={estilos.botonVolver}>← Volver</button>
-                <div style={estilos.navTitulo}>
-                    <span style={estilos.navIcono}>🔍</span>
-                    <h2 style={estilos.titulo}>Auditoría del Sistema</h2>
-                </div>
-            </div>
-
-            <div style={estilos.contenido}>
-                {error && <div style={estilos.error}>⚠️ {error}</div>}
-
-                <div style={estilos.statsGrid}>
-                    <div style={{ ...estilos.statCard, borderTop: '4px solid #16a34a' }}>
-                        <div style={estilos.statIcono}>➕</div>
-                        <div style={{ ...estilos.statNum, color: '#16a34a' }}>{stats.crear}</div>
-                        <div style={estilos.statLabel}>Creaciones</div>
-                    </div>
-                    <div style={{ ...estilos.statCard, borderTop: '4px solid #d97706' }}>
-                        <div style={estilos.statIcono}>✏️</div>
-                        <div style={{ ...estilos.statNum, color: '#d97706' }}>{stats.modificar}</div>
-                        <div style={estilos.statLabel}>Modificaciones</div>
-                    </div>
-                    <div style={{ ...estilos.statCard, borderTop: '4px solid #dc2626' }}>
-                        <div style={estilos.statIcono}>🗑️</div>
-                        <div style={{ ...estilos.statNum, color: '#dc2626' }}>{stats.eliminar}</div>
-                        <div style={estilos.statLabel}>Eliminaciones</div>
-                    </div>
-                    <div style={{ ...estilos.statCard, borderTop: '4px solid #1e40af' }}>
-                        <div style={estilos.statIcono}>📊</div>
-                        <div style={{ ...estilos.statNum, color: '#1e40af' }}>{registros.length}</div>
-                        <div style={estilos.statLabel}>Total Registros</div>
-                    </div>
-                </div>
-
-                <div style={estilos.panel}>
-                    <div style={estilos.panelHeader}>
+            <div style={estilos.fondo} />
+            <div style={estilos.circulo1} />
+            <div style={estilos.inner}>
+                <div style={estilos.navbar}>
+                    <div style={estilos.navIzq}>
+                        <button onClick={() => navigate('/dashboard')} style={estilos.botonVolver}>← Volver</button>
                         <div>
-                            <h3 style={{ margin: 0, color: '#1e293b', fontSize: '16px', fontWeight: '700' }}>Historial de cambios</h3>
-                            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '13px' }}>
-                                Registro inmutable de todas las acciones del sistema
-                            </p>
+                            <div style={estilos.navTituloTexto}>Auditoría</div>
+                            <div style={estilos.navSubtitulo}>Historial inmutable del sistema</div>
                         </div>
-                        <input
-                            type="text"
-                            placeholder="🔍 Buscar por usuario, tabla o acción..."
-                            value={filtro}
-                            onChange={(e) => setFiltro(e.target.value)}
-                            style={estilos.buscador}
-                        />
+                    </div>
+                </div>
+
+                <div style={estilos.contenido}>
+                    {error && <div style={estilos.error}>⚠ {error}</div>}
+
+                    <div style={estilos.statsGrid}>
+                        {[
+                            { num: stats.crear, label: 'Creaciones', color: '#34d399' },
+                            { num: stats.modificar, label: 'Modificaciones', color: '#fbbf24' },
+                            { num: stats.eliminar, label: 'Eliminaciones', color: '#f87171' },
+                            { num: registros.length, label: 'Total registros', color: '#60a5fa' },
+                        ].map((s, i) => (
+                            <div key={i} style={{ ...estilos.statCard, borderTop: `2px solid ${s.color}` }}>
+                                <div style={{ ...estilos.statNum, color: s.color }}>{s.num}</div>
+                                <div style={estilos.statLabel}>{s.label}</div>
+                            </div>
+                        ))}
                     </div>
 
-                    {cargando ? (
-                        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px' }}>Cargando...</p>
-                    ) : registrosFiltrados.length === 0 ? (
-                        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px' }}>Sin registros de auditoría</p>
-                    ) : (
-                        <div style={estilos.listaRegistros}>
-                            {registrosFiltrados.map((r, i) => {
-                                const accion = colorAccion(r.accion);
+                    <div style={estilos.panel}>
+                        <div style={estilos.panelHeader}>
+                            <div>
+                                <div style={estilos.panelTitulo}>Registro de actividad</div>
+                                <div style={estilos.panelSubtitulo}>Todos los cambios del sistema — no modificable</div>
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Buscar por usuario, tabla o acción..."
+                                value={filtro}
+                                onChange={(e) => setFiltro(e.target.value)}
+                                style={estilos.buscador}
+                            />
+                        </div>
+
+                        <div style={estilos.tablaHeader}>
+                            <span style={{ flex: 1 }}>Acción</span>
+                            <span style={{ flex: 1 }}>Tabla</span>
+                            <span style={{ flex: 2 }}>Usuario</span>
+                            <span style={{ flex: 1 }}>Rol</span>
+                            <span style={{ flex: 2 }}>Fecha y hora</span>
+                            <span style={{ flex: 1 }}>IP</span>
+                        </div>
+
+                        {cargando ? (
+                            <p style={estilos.vacio}>Cargando...</p>
+                        ) : registrosFiltrados.length === 0 ? (
+                            <p style={estilos.vacio}>Sin registros de auditoría</p>
+                        ) : (
+                            registrosFiltrados.map((r, i) => {
+                                const c = colorAccion(r.accion);
                                 return (
-                                    <div key={i} style={estilos.registroItem}>
-                                        <div style={{ ...estilos.accionIcono, backgroundColor: accion.bg, color: accion.color }}>
-                                            {accion.icon}
-                                        </div>
-                                        <div style={estilos.registroInfo}>
-                                            <div style={estilos.registroTitulo}>
-                                                <span style={{ ...estilos.accionBadge, backgroundColor: accion.bg, color: accion.color }}>
-                                                    {r.accion}
-                                                </span>
-                                                <span style={estilos.tablaChip}>
-                                                    {iconoTabla(r.tabla_afectada)} {r.tabla_afectada}
-                                                </span>
-                                            </div>
-                                            <div style={estilos.registroMeta}>
-                                                👤 {r.usuario_nombre} {r.usuario_apellido}
-                                                <span style={estilos.rolChip}>{r.usuario_rol}</span>
-                                                · 📅 {new Date(r.created_at).toLocaleString()}
-                                                · 🌐 {r.ip || 'IP no disponible'}
-                                            </div>
-                                        </div>
+                                    <div key={i} style={estilos.fila}>
+                                        <span style={{ flex: 1 }}>
+                                            <span style={{ ...estilos.badge, backgroundColor: c.bg, color: c.color, border: `1px solid ${c.border}` }}>
+                                                {r.accion}
+                                            </span>
+                                        </span>
+                                        <span style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <span style={estilos.tablaIcono}>{iconoTabla(r.tabla_afectada)}</span>
+                                            <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>{r.tabla_afectada}</span>
+                                        </span>
+                                        <span style={{ flex: 2, color: 'rgba(255,255,255,0.7)', fontSize: '13px' }}>{r.usuario_nombre} {r.usuario_apellido}</span>
+                                        <span style={{ flex: 1 }}>
+                                            <span style={estilos.rolChip}>{r.usuario_rol}</span>
+                                        </span>
+                                        <span style={{ flex: 2, color: 'rgba(255,255,255,0.35)', fontSize: '12px' }}>{new Date(r.created_at).toLocaleString()}</span>
+                                        <span style={{ flex: 1, color: 'rgba(255,255,255,0.25)', fontSize: '12px' }}>{r.ip || '—'}</span>
                                     </div>
                                 );
-                            })}
-                        </div>
-                    )}
+                            })
+                        )}
+                    </div>
                 </div>
+                <div style={estilos.footer}><span>© {new Date().getFullYear()} Unidad Educativa Adventista Salomón</span></div>
             </div>
         </div>
     );
 };
 
 const estilos = {
-    contenedor: { minHeight: '100vh', backgroundColor: '#f0f4f8' },
-    navbar: { backgroundColor: 'white', padding: '16px 32px', display: 'flex', alignItems: 'center', gap: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', position: 'sticky', top: 0, zIndex: 100 },
-    botonVolver: { background: 'none', border: '1px solid #e2e8f0', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', color: '#374151', fontSize: '14px' },
-    navTitulo: { display: 'flex', alignItems: 'center', gap: '10px' },
-    navIcono: { fontSize: '24px' },
-    titulo: { color: '#1e293b', margin: 0, fontSize: '20px', fontWeight: '700' },
-    contenido: { padding: '24px 32px' },
-    error: { backgroundColor: '#fee2e2', color: '#dc2626', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' },
-    statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' },
-    statCard: { backgroundColor: 'white', padding: '20px', borderRadius: '12px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
-    statIcono: { fontSize: '24px', marginBottom: '8px' },
-    statNum: { fontSize: '32px', fontWeight: '800' },
-    statLabel: { fontSize: '13px', color: '#64748b', marginTop: '4px' },
-    panel: { backgroundColor: 'white', borderRadius: '14px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
-    panelHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' },
-    buscador: { padding: '10px 16px', borderRadius: '8px', border: '1.5px solid #e2e8f0', fontSize: '14px', width: '300px', outline: 'none' },
-    listaRegistros: { display: 'flex', flexDirection: 'column', gap: '8px' },
-    registroItem: { display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px', border: '1px solid #f1f5f9', borderRadius: '10px', backgroundColor: '#fafafa' },
-    accionIcono: { width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 },
-    registroInfo: { flex: 1 },
-    registroTitulo: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' },
-    accionBadge: { padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '700', textTransform: 'capitalize' },
-    tablaChip: { backgroundColor: '#f1f5f9', color: '#475569', padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' },
-    registroMeta: { color: '#64748b', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' },
-    rolChip: { backgroundColor: '#dbeafe', color: '#1e40af', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: '600', textTransform: 'capitalize' },
+    contenedor: { minHeight: '100vh', background: 'linear-gradient(140deg, #000d2e 0%, #001a5c 40%, #002d8a 100%)', position: 'relative', overflow: 'hidden' },
+    fondo: { position: 'absolute', inset: 0, background: `repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.012) 40px, rgba(255,255,255,0.012) 41px), repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.012) 40px, rgba(255,255,255,0.012) 41px)` },
+    circulo1: { position: 'absolute', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,80,220,0.12) 0%, transparent 65%)', filter: 'blur(80px)', top: '-200px', right: '-150px' },
+    inner: { position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' },
+    navbar: { backgroundColor: 'rgba(0,8,30,0.7)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '14px 40px', display: 'flex', alignItems: 'center' },
+    navIzq: { display: 'flex', alignItems: 'center', gap: '20px' },
+    botonVolver: { backgroundColor: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)', padding: '7px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' },
+    navTituloTexto: { color: 'white', fontWeight: '700', fontSize: '16px' },
+    navSubtitulo: { color: 'rgba(255,255,255,0.35)', fontSize: '11px', marginTop: '2px' },
+    contenido: { padding: '32px 40px', flex: 1 },
+    error: { backgroundColor: 'rgba(220,38,38,0.12)', border: '1px solid rgba(220,38,38,0.25)', color: '#fca5a5', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '13px' },
+    statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '24px' },
+    statCard: { backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '18px 20px', textAlign: 'center' },
+    statNum: { fontSize: '32px', fontWeight: '800', letterSpacing: '-1px' },
+    statLabel: { color: 'rgba(255,255,255,0.35)', fontSize: '12px', marginTop: '4px' },
+    panel: { backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '14px', overflow: 'hidden' },
+    panelHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 24px', borderBottom: '1px solid rgba(255,255,255,0.05)' },
+    panelTitulo: { color: 'white', fontWeight: '700', fontSize: '14px' },
+    panelSubtitulo: { color: 'rgba(255,255,255,0.3)', fontSize: '11px', marginTop: '2px' },
+    buscador: { padding: '8px 14px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '7px', fontSize: '12px', color: 'white', outline: 'none', width: '280px' },
+    tablaHeader: { display: 'flex', padding: '10px 24px', borderBottom: '1px solid rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.2)', fontSize: '10px', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase' },
+    fila: { display: 'flex', alignItems: 'center', padding: '12px 24px', borderBottom: '1px solid rgba(255,255,255,0.04)' },
+    badge: { padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700', textTransform: 'capitalize' },
+    tablaIcono: { width: '22px', height: '22px', borderRadius: '4px', backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.4)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '700' },
+    rolChip: { backgroundColor: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.15)', color: 'rgba(255,215,0,0.6)', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: '600', textTransform: 'capitalize' },
+    vacio: { textAlign: 'center', color: 'rgba(255,255,255,0.2)', padding: '40px', fontSize: '14px' },
+    footer: { display: 'flex', justifyContent: 'center', padding: '14px 40px', color: 'rgba(255,255,255,0.15)', fontSize: '11px', borderTop: '1px solid rgba(255,255,255,0.05)' },
 };
 
 export default Auditoria;

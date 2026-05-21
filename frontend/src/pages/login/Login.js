@@ -21,7 +21,7 @@ const Login = () => {
             login(respuesta.data);
             navigate('/dashboard');
         } catch (err) {
-            setError(err.response?.data?.mensaje || 'Error al iniciar sesión');
+            setError(err.response?.data?.mensaje || 'Credenciales incorrectas');
         } finally {
             setCargando(false);
         }
@@ -29,85 +29,64 @@ const Login = () => {
 
     return (
         <div style={estilos.contenedor}>
-            {/* Panel izquierdo */}
-            <div style={estilos.panelIzquierdo}>
-                <div style={estilos.logoArea}>
-                    <div style={estilos.logoIcono}>🎓</div>
-                    <h1 style={estilos.logoNombre}>EduTrack IA</h1>
-                    <p style={estilos.logoDesc}>Plataforma Inteligente de Seguimiento Académico</p>
-                </div>
-                <div style={estilos.features}>
-                    <div style={estilos.feature}>
-                        <span style={estilos.featureIcono}>🤖</span>
-                        <span style={estilos.featureTexto}>Análisis de riesgo con Inteligencia Artificial</span>
-                    </div>
-                    <div style={estilos.feature}>
-                        <span style={estilos.featureIcono}>📊</span>
-                        <span style={estilos.featureTexto}>Seguimiento de notas, asistencia y conducta</span>
-                    </div>
-                    <div style={estilos.feature}>
-                        <span style={estilos.featureIcono}>🔔</span>
-                        <span style={estilos.featureTexto}>Notificaciones automáticas a padres de familia</span>
-                    </div>
-                    <div style={estilos.feature}>
-                        <span style={estilos.featureIcono}>📱</span>
-                        <span style={estilos.featureTexto}>App móvil para padres de familia</span>
-                    </div>
-                </div>
-            </div>
+            <div style={estilos.fondo} />
+            <div style={estilos.circulo1} />
+            <div style={estilos.circulo2} />
+            <div style={estilos.circulo3} />
+            <div style={estilos.circulo4} />
 
-            {/* Panel derecho */}
-            <div style={estilos.panelDerecho}>
-                <div style={estilos.formularioBox}>
-                    <h2 style={estilos.titulo}>Bienvenido</h2>
-                    <p style={estilos.subtitulo}>Ingresa tus credenciales para continuar</p>
+            <div style={estilos.card}>
+                <div style={estilos.logoArea}>
+                    <div style={estilos.logoCirculo}>
+                        <img src="/logo-salomon.jpg" alt="Colegio Adventista Salomón" style={estilos.logoImg} />
+                    </div>
+                    <h1 style={estilos.institucion}>Unidad Educativa Adventista Salomón</h1>
+                    <p style={estilos.sistema}>Sistema de Seguimiento Académico</p>
+                </div>
+
+                <div style={estilos.divisor} />
+
+                <div style={estilos.formulario}>
+                    <h2 style={estilos.titulo}>Iniciar sesión</h2>
 
                     {error && <div style={estilos.error}>⚠️ {error}</div>}
 
                     <form onSubmit={handleSubmit}>
                         <div style={estilos.campo}>
                             <label style={estilos.label}>Correo electrónico</label>
-                            <div style={estilos.inputWrapper}>
-                                <span style={estilos.inputIcono}>✉️</span>
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    style={estilos.input}
-                                    placeholder="tu@email.com"
-                                    required
-                                />
-                            </div>
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                style={estilos.input}
+                                placeholder="correo@institucion.com"
+                                required
+                            />
                         </div>
 
                         <div style={estilos.campo}>
                             <label style={estilos.label}>Contraseña</label>
-                            <div style={estilos.inputWrapper}>
-                                <span style={estilos.inputIcono}>🔒</span>
-                                <input
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    style={estilos.input}
-                                    placeholder="••••••••"
-                                    required
-                                />
-                            </div>
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                style={estilos.input}
+                                placeholder="••••••••"
+                                required
+                            />
                         </div>
 
                         <button
                             type="submit"
-                            style={{ ...estilos.boton, opacity: cargando ? 0.7 : 1 }}
+                            style={{ ...estilos.boton, opacity: cargando ? 0.8 : 1 }}
                             disabled={cargando}
                         >
-                            {cargando ? '⏳ Iniciando sesión...' : 'Iniciar sesión →'}
+                            {cargando ? 'Verificando...' : 'Ingresar al sistema'}
                         </button>
                     </form>
-
-                    <p style={estilos.footer}>
-                        Sistema exclusivo para personal autorizado de la institución educativa
-                    </p>
                 </div>
+
+                <p style={estilos.footer}>Acceso exclusivo para personal autorizado</p>
             </div>
         </div>
     );
@@ -117,139 +96,190 @@ const estilos = {
     contenedor: {
         minHeight: '100vh',
         display: 'flex',
-    },
-    panelIzquierdo: {
-        flex: 1,
-        background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%)',
-        display: 'flex',
-        flexDirection: 'column',
+        alignItems: 'center',
         justifyContent: 'center',
-        padding: '60px',
-        color: 'white',
+        background: 'linear-gradient(135deg, #001040 0%, #002080 50%, #003399 100%)',
+        position: 'relative',
+        overflow: 'hidden',
+    },
+    fondo: {
+        position: 'absolute',
+        inset: 0,
+        background: `
+            repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(255,255,255,0.015) 2px,
+                rgba(255,255,255,0.015) 4px
+            ),
+            repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 2px,
+                rgba(255,255,255,0.015) 2px,
+                rgba(255,255,255,0.015) 4px
+            )
+        `,
+    },
+    circulo1: {
+        position: 'absolute',
+        width: '600px',
+        height: '600px',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(0,100,255,0.2) 0%, transparent 70%)',
+        filter: 'blur(40px)',
+        top: '-200px',
+        right: '-150px',
+    },
+    circulo2: {
+        position: 'absolute',
+        width: '500px',
+        height: '500px',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(0,60,200,0.25) 0%, transparent 70%)',
+        filter: 'blur(50px)',
+        bottom: '-150px',
+        left: '-100px',
+    },
+    circulo3: {
+        position: 'absolute',
+        width: '300px',
+        height: '300px',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(255,215,0,0.08) 0%, transparent 70%)',
+        filter: 'blur(30px)',
+        top: '30%',
+        left: '10%',
+    },
+    circulo4: {
+        position: 'absolute',
+        width: '400px',
+        height: '200px',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(100,180,255,0.12) 0%, transparent 70%)',
+        filter: 'blur(40px)',
+        top: '10%',
+        left: '30%',
+    },
+    card: {
+        backgroundColor: 'rgba(255,255,255,0.07)',
+        backdropFilter: 'blur(40px)',
+        WebkitBackdropFilter: 'blur(40px)',
+        border: '1px solid rgba(255,255,255,0.2)',
+        borderTop: '1px solid rgba(255,255,255,0.4)',
+        borderLeft: '1px solid rgba(255,255,255,0.3)',
+        borderRadius: '24px',
+        padding: '48px 44px',
+        width: '100%',
+        maxWidth: '420px',
+        position: 'relative',
+        zIndex: 1,
+        boxShadow: `
+            0 25px 60px rgba(0,0,0,0.4),
+            inset 0 1px 0 rgba(255,255,255,0.2),
+            inset 0 -1px 0 rgba(0,0,0,0.1)
+        `,
     },
     logoArea: {
-        marginBottom: '48px',
-    },
-    logoIcono: {
-        fontSize: '56px',
-        marginBottom: '16px',
-    },
-    logoNombre: {
-        fontSize: '36px',
-        fontWeight: '800',
-        margin: '0 0 8px 0',
-        letterSpacing: '-0.5px',
-    },
-    logoDesc: {
-        fontSize: '16px',
-        color: '#bfdbfe',
-        margin: 0,
-        lineHeight: '1.5',
-    },
-    features: {
         display: 'flex',
         flexDirection: 'column',
-        gap: '20px',
-    },
-    feature: {
-        display: 'flex',
         alignItems: 'center',
-        gap: '14px',
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        padding: '14px 18px',
-        borderRadius: '10px',
-        backdropFilter: 'blur(10px)',
+        marginBottom: '24px',
     },
-    featureIcono: {
-        fontSize: '24px',
-        flexShrink: 0,
+    logoCirculo: {
+        width: '90px',
+        height: '90px',
+        borderRadius: '50%',
+        overflow: 'hidden',
+        border: '3px solid #FFD700',
+        marginBottom: '16px',
+        boxShadow: '0 0 25px rgba(255,215,0,0.4)',
     },
-    featureTexto: {
-        fontSize: '14px',
-        color: '#dbeafe',
-        lineHeight: '1.4',
-    },
-    panelDerecho: {
-        width: '480px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f8fafc',
-        padding: '40px',
-    },
-    formularioBox: {
+    logoImg: {
         width: '100%',
-        maxWidth: '380px',
+        height: '100%',
+        objectFit: 'cover',
+    },
+    institucion: {
+        color: 'white',
+        fontSize: '17px',
+        fontWeight: '700',
+        textAlign: 'center',
+        margin: '0 0 6px 0',
+        lineHeight: '1.4',
+        textShadow: '0 2px 8px rgba(0,0,0,0.3)',
+    },
+    sistema: {
+        color: 'rgba(255,255,255,0.55)',
+        fontSize: '13px',
+        textAlign: 'center',
+        margin: 0,
+        letterSpacing: '0.5px',
+    },
+    divisor: {
+        height: '1px',
+        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+        margin: '24px 0',
+    },
+    formulario: {
+        marginBottom: '16px',
     },
     titulo: {
-        fontSize: '28px',
+        color: 'white',
+        fontSize: '20px',
         fontWeight: '700',
-        color: '#1e293b',
-        margin: '0 0 8px 0',
-    },
-    subtitulo: {
-        fontSize: '14px',
-        color: '#64748b',
-        margin: '0 0 32px 0',
+        margin: '0 0 20px 0',
     },
     error: {
-        backgroundColor: '#fee2e2',
-        color: '#dc2626',
-        padding: '12px 16px',
+        backgroundColor: 'rgba(220,38,38,0.15)',
+        border: '1px solid rgba(220,38,38,0.3)',
+        color: '#fca5a5',
+        padding: '10px 14px',
         borderRadius: '8px',
-        marginBottom: '20px',
-        fontSize: '14px',
+        marginBottom: '16px',
+        fontSize: '13px',
     },
     campo: {
-        marginBottom: '20px',
+        marginBottom: '16px',
     },
     label: {
         display: 'block',
-        marginBottom: '8px',
-        color: '#374151',
-        fontSize: '14px',
-        fontWeight: '600',
-    },
-    inputWrapper: {
-        display: 'flex',
-        alignItems: 'center',
-        backgroundColor: 'white',
-        border: '1.5px solid #e2e8f0',
-        borderRadius: '10px',
-        overflow: 'hidden',
-    },
-    inputIcono: {
-        padding: '0 12px',
-        fontSize: '16px',
+        marginBottom: '6px',
+        color: 'rgba(255,255,255,0.65)',
+        fontSize: '13px',
+        fontWeight: '500',
     },
     input: {
-        flex: 1,
-        padding: '12px 14px 12px 0',
-        border: 'none',
-        fontSize: '14px',
-        outline: 'none',
-        backgroundColor: 'transparent',
         width: '100%',
+        padding: '12px 14px',
+        backgroundColor: 'rgba(255,255,255,0.08)',
+        border: '1px solid rgba(255,255,255,0.15)',
+        borderRadius: '10px',
+        fontSize: '14px',
+        color: 'white',
+        outline: 'none',
+        boxSizing: 'border-box',
     },
     boton: {
         width: '100%',
-        padding: '14px',
-        background: 'linear-gradient(135deg, #1e40af, #2563eb)',
-        color: 'white',
+        padding: '13px',
+        backgroundColor: '#FFD700',
+        color: '#003399',
         border: 'none',
         borderRadius: '10px',
-        fontSize: '16px',
-        fontWeight: '700',
+        fontSize: '15px',
+        fontWeight: '800',
         cursor: 'pointer',
         marginTop: '8px',
         letterSpacing: '0.3px',
+        boxShadow: '0 4px 20px rgba(255,215,0,0.35)',
     },
     footer: {
         textAlign: 'center',
-        color: '#94a3b8',
+        color: 'rgba(255,255,255,0.3)',
         fontSize: '12px',
-        marginTop: '24px',
-        lineHeight: '1.5',
+        margin: 0,
     },
 };
 
