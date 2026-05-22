@@ -115,5 +115,28 @@ const obtenerEstudiante = async (req, res) => {
         res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
     }
 };
+const eliminarEstudiante = async (req, res) => {
+    try {
+        const { id } = req.params;
 
-module.exports = { crearEstudiante, obtenerEstudiantes, obtenerEstudiante };
+        const existe = await pool.query(
+            'SELECT id, nombre, apellido FROM estudiantes WHERE id = $1',
+            [id]
+        );
+
+        if (existe.rows.length === 0) {
+            return res.status(404).json({ mensaje: 'Estudiante no encontrado' });
+        }
+
+        await pool.query(
+            'UPDATE estudiantes SET activo = false WHERE id = $1',
+            [id]
+        );
+
+        res.json({ mensaje: 'Estudiante eliminado exitosamente' });
+
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
+    }
+};
+module.exports = { crearEstudiante, obtenerEstudiantes, obtenerEstudiante, eliminarEstudiante };
