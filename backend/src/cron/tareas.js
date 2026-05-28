@@ -101,6 +101,7 @@ const ejecutarAnalisisMensual = async () => {
         const enRiesgoMedio = resultados.filter(r => r.riesgo.nivel === 'medio');
         const enRiesgoBajo = resultados.filter(r => r.riesgo.nivel === 'bajo');
 
+        // Email al director
         const director = await pool.query(
             `SELECT email FROM usuarios WHERE rol = 'director' AND activo = true LIMIT 1`
         );
@@ -134,6 +135,7 @@ const ejecutarAnalisisMensual = async () => {
             );
         }
 
+        // Email a docentes
         const docentes = await pool.query(
             `SELECT email, nombre FROM usuarios WHERE rol = 'docente' AND activo = true`
         );
@@ -156,6 +158,37 @@ const ejecutarAnalisisMensual = async () => {
             );
         }
 
+        // Email a padres con hijos en riesgo alto
+        for (const r of enRiesgoAlto) {
+            const tutor = await pool.query(
+                `SELECT u.email, u.nombre FROM usuarios u
+                 JOIN estudiantes e ON e.tutor_id = u.id
+                 WHERE e.id = $1`,
+                [r.estudiante.id]
+            );
+
+            if (tutor.rows.length > 0) {
+                await enviarEmail(
+                    tutor.rows[0].email,
+                    `⚠️ EduTrack — Alerta académica: ${r.estudiante.nombre} ${r.estudiante.apellido}`,
+                    `
+                    <h2>Alerta Académica</h2>
+                    <p>Estimado/a ${tutor.rows[0].nombre},</p>
+                    <p>El sistema ha detectado que su hijo/a <strong>${r.estudiante.nombre} ${r.estudiante.apellido}</strong>
+                    está en <strong style="color:#dc2626">RIESGO ALTO</strong> académico.</p>
+                    <br>
+                    <h3>Factores detectados:</h3>
+                    <ul>
+                        ${r.riesgo.factores.map(f => `<li>${f}</li>`).join('')}
+                    </ul>
+                    <br>
+                    <p>Por favor comuníquese con la institución a la brevedad.</p>
+                    <p><strong>Unidad Educativa Adventista Salomón</strong></p>
+                    `
+                );
+            }
+        }
+
         console.log(`✅ Análisis mensual completado. ${resultados.length} estudiantes analizados.`);
 
     } catch (error) {
@@ -164,7 +197,6 @@ const ejecutarAnalisisMensual = async () => {
 };
 
 const iniciarCronJobs = () => {
-    // Ejecutar el día 1 de cada mes a las 8:00 AM
     cron.schedule('0 8 1 * *', ejecutarAnalisisMensual, {
         timezone: 'America/La_Paz'
     });

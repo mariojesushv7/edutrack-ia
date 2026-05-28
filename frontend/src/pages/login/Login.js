@@ -19,7 +19,12 @@ const Login = () => {
         try {
             const respuesta = await api.post('/auth/login', { email, password });
             login(respuesta.data);
-            navigate('/dashboard');
+            const rol = respuesta.data.usuario.rol;
+            if (rol === 'padre') {
+                navigate('/padre');
+            } else {
+                navigate('/dashboard');
+            }
         } catch (err) {
             setError(err.response?.data?.mensaje || 'Credenciales incorrectas');
         } finally {

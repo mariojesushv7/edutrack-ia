@@ -5,7 +5,6 @@ const calcularRiesgo = (datos) => {
     let puntos = 0;
     let factores = [];
 
-    // Análisis de notas (peso: 40%)
     if (datos.promedio_notas !== null) {
         if (datos.promedio_notas < 51) {
             puntos += 40;
@@ -16,7 +15,6 @@ const calcularRiesgo = (datos) => {
         }
     }
 
-    // Análisis de asistencia (peso: 30%)
     if (datos.total_asistencias > 0) {
         const porcentajeAusencias = (datos.ausencias / datos.total_asistencias) * 100;
         if (porcentajeAusencias > 30) {
@@ -28,7 +26,6 @@ const calcularRiesgo = (datos) => {
         }
     }
 
-    // Análisis de tareas (peso: 20%)
     if (datos.total_tareas > 0) {
         const porcentajePendientes = (datos.tareas_pendientes / datos.total_tareas) * 100;
         if (porcentajePendientes > 50) {
@@ -40,7 +37,6 @@ const calcularRiesgo = (datos) => {
         }
     }
 
-    // Análisis de conducta (peso: 10%)
     if (datos.conductas_malas > 2) {
         puntos += 10;
         factores.push(`Múltiples registros de mala conducta: ${datos.conductas_malas}`);
@@ -70,23 +66,16 @@ const analizarEstudiantes = async (req, res) => {
                 `SELECT AVG(valor) AS promedio FROM notas WHERE estudiante_id = $1`,
                 [estudiante.id]
             );
-
             const asistencia = await pool.query(
-                `SELECT 
-                    COUNT(*) AS total,
-                    COUNT(CASE WHEN estado = 'ausente' THEN 1 END) AS ausencias
+                `SELECT COUNT(*) AS total, COUNT(CASE WHEN estado = 'ausente' THEN 1 END) AS ausencias
                  FROM asistencia WHERE estudiante_id = $1`,
                 [estudiante.id]
             );
-
             const tareas = await pool.query(
-                `SELECT 
-                    COUNT(*) AS total,
-                    COUNT(CASE WHEN entregada = false THEN 1 END) AS pendientes
+                `SELECT COUNT(*) AS total, COUNT(CASE WHEN entregada = false THEN 1 END) AS pendientes
                  FROM tareas WHERE estudiante_id = $1`,
                 [estudiante.id]
             );
-
             const conducta = await pool.query(
                 `SELECT COUNT(*) AS malas FROM conducta 
                  WHERE estudiante_id = $1 AND nivel IN ('malo', 'regular')`,
@@ -103,12 +92,7 @@ const analizarEstudiantes = async (req, res) => {
             };
 
             const riesgo = calcularRiesgo(datos);
-
-            resultados.push({
-                estudiante,
-                datos,
-                riesgo
-            });
+            resultados.push({ estudiante, datos, riesgo });
 
             if (riesgo.nivel === 'alto') {
                 const director = await pool.query(
@@ -128,6 +112,35 @@ const analizarEstudiantes = async (req, res) => {
                         director.rows[0].email,
                         `⚠️ EduTrack: Alerta de riesgo - ${estudiante.nombre} ${estudiante.apellido}`,
                         mensaje
+                    );
+                }
+
+                // Notificar al padre
+                const tutor = await pool.query(
+                    `SELECT u.email, u.nombre FROM usuarios u
+                     JOIN estudiantes e ON e.tutor_id = u.id
+                     WHERE e.id = $1`,
+                    [estudiante.id]
+                );
+
+                if (tutor.rows.length > 0) {
+                    await enviarEmail(
+                        tutor.rows[0].email,
+                        `⚠️ EduTrack — Alerta académica: ${estudiante.nombre} ${estudiante.apellido}`,
+                        `
+                        <h2>Alerta Académica</h2>
+                        <p>Estimado/a ${tutor.rows[0].nombre},</p>
+                        <p>El sistema ha detectado que su hijo/a <strong>${estudiante.nombre} ${estudiante.apellido}</strong>
+                        está en <strong style="color:#dc2626">RIESGO ALTO</strong> académico.</p>
+                        <br>
+                        <h3>Factores detectados:</h3>
+                        <ul>
+                            ${riesgo.factores.map(f => `<li>${f}</li>`).join('')}
+                        </ul>
+                        <br>
+                        <p>Por favor comuníquese con la institución a la brevedad.</p>
+                        <p><strong>Unidad Educativa Adventista Salomón</strong></p>
+                        `
                     );
                 }
             }

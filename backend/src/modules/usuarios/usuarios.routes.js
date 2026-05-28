@@ -5,7 +5,7 @@ const { verificarToken } = require('../../middleware/auth');
 const { verificarRol } = require('../../middleware/roles');
 
 router.post('/', verificarToken, verificarRol('director'), crearUsuario);
-router.get('/', verificarToken, verificarRol('director'), obtenerUsuarios);
+router.get('/', verificarToken, verificarRol('director', 'docente'), obtenerUsuarios);
 router.put('/:id/desactivar', verificarToken, verificarRol('director'), desactivarUsuario);
 
 module.exports = router;
