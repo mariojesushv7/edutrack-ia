@@ -11,9 +11,9 @@ const transporter = nodemailer.createTransport({
     },
     tls: {
         rejectUnauthorized: false
-    }
+    },
+    family: 4
 });
-
 const enviarEmail = async (destinatario, asunto, mensaje) => {
     try {
         await transporter.sendMail({
