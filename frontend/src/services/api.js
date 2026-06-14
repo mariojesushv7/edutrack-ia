@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://edutrack-ia.onrender.com/api',
+    baseURL: 'https://edutrack-ia-production.up.railway.app/api',
 });
 
 api.interceptors.request.use((config) => {
