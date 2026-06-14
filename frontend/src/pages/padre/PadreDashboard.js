@@ -81,6 +81,7 @@ const PadreDashboard = () => {
     useEffect(() => {
         cargarHijos();
         cargarNotificaciones();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const colorNota = (v) => v >= 70 ? '#34d399' : v >= 51 ? '#fbbf24' : '#f87171';
