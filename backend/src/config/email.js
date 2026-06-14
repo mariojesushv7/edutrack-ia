@@ -1,25 +1,19 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 require('dotenv').config();
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS,
-    }
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const enviarEmail = async (destinatario, asunto, mensaje) => {
     try {
-        await transporter.sendMail({
-            from: `"EduTrack IA" <${process.env.GMAIL_USER}>`,
+        const { data, error } = await resend.emails.send({
+            from: 'EduTrack IA <onboarding@resend.dev>',
             to: destinatario,
             subject: asunto,
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <div style="background-color: #1e40af; padding: 20px; text-align: center;">
+                    <div style="background-color: #001a5c; padding: 20px; text-align: center;">
                         <h1 style="color: white; margin: 0;">EduTrack IA</h1>
-                        <p style="color: #bfdbfe; margin: 4px 0 0 0;">Sistema de Seguimiento Académico</p>
+                        <p style="color: #FFD700; margin: 4px 0 0 0;">U.E. Adventista Salomón</p>
                     </div>
                     <div style="padding: 24px; background-color: #f8fafc;">
                         <p style="color: #1e293b; font-size: 16px;">${mensaje}</p>
@@ -30,6 +24,12 @@ const enviarEmail = async (destinatario, asunto, mensaje) => {
                 </div>
             `
         });
+
+        if (error) {
+            console.error('Error enviando email:', error);
+            return false;
+        }
+
         console.log(`Email enviado a ${destinatario}`);
         return true;
     } catch (error) {
