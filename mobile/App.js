@@ -3,10 +3,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from './src/screens/HomeScreen';
-import AsistenciaScreen from './src/screens/AsistenciaScreen';
-import NotasScreen from './src/screens/NotasScreen';
-import TareasScreen from './src/screens/TareasScreen';
-import NotificacionesScreen from './src/screens/NotificacionesScreen';
 import { ActivityIndicator, View } from 'react-native';
 
 const Stack = createNativeStackNavigator();
@@ -15,8 +11,8 @@ const Navegacion = () => {
     const { usuario, cargando } = useAuth();
 
     if (cargando) return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#1e40af" />
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#001040' }}>
+            <ActivityIndicator size="large" color="#FFD700" />
         </View>
     );
 
@@ -25,13 +21,7 @@ const Navegacion = () => {
             {!usuario ? (
                 <Stack.Screen name="Login" component={LoginScreen} />
             ) : (
-                <>
-                    <Stack.Screen name="Home" component={HomeScreen} />
-                    <Stack.Screen name="Asistencia" component={AsistenciaScreen} />
-                    <Stack.Screen name="Notas" component={NotasScreen} />
-                    <Stack.Screen name="Tareas" component={TareasScreen} />
-                    <Stack.Screen name="Notificaciones" component={NotificacionesScreen} />
-                </>
+                <Stack.Screen name="Home" component={HomeScreen} />
             )}
         </Stack.Navigator>
     );

@@ -1,57 +1,6 @@
 const pool = require('../../config/database');
 const { enviarEmail } = require('../../config/email');
-
-const calcularRiesgo = (datos) => {
-    let puntos = 0;
-    let factores = [];
-
-    if (datos.promedio_notas !== null) {
-        if (datos.promedio_notas < 51) {
-            puntos += 40;
-            factores.push(`Promedio de notas crítico: ${datos.promedio_notas}`);
-        } else if (datos.promedio_notas < 70) {
-            puntos += 20;
-            factores.push(`Promedio de notas bajo: ${datos.promedio_notas}`);
-        }
-    }
-
-    if (datos.total_asistencias > 0) {
-        const porcentajeAusencias = (datos.ausencias / datos.total_asistencias) * 100;
-        if (porcentajeAusencias > 30) {
-            puntos += 30;
-            factores.push(`Ausencias críticas: ${porcentajeAusencias.toFixed(1)}%`);
-        } else if (porcentajeAusencias > 15) {
-            puntos += 15;
-            factores.push(`Ausencias elevadas: ${porcentajeAusencias.toFixed(1)}%`);
-        }
-    }
-
-    if (datos.total_tareas > 0) {
-        const porcentajePendientes = (datos.tareas_pendientes / datos.total_tareas) * 100;
-        if (porcentajePendientes > 50) {
-            puntos += 20;
-            factores.push(`Muchas tareas sin entregar: ${porcentajePendientes.toFixed(1)}%`);
-        } else if (porcentajePendientes > 25) {
-            puntos += 10;
-            factores.push(`Tareas pendientes: ${porcentajePendientes.toFixed(1)}%`);
-        }
-    }
-
-    if (datos.conductas_malas > 2) {
-        puntos += 10;
-        factores.push(`Múltiples registros de mala conducta: ${datos.conductas_malas}`);
-    } else if (datos.conductas_malas > 0) {
-        puntos += 5;
-        factores.push(`Registros de conducta negativa: ${datos.conductas_malas}`);
-    }
-
-    let nivel;
-    if (puntos >= 50) nivel = 'alto';
-    else if (puntos >= 25) nivel = 'medio';
-    else nivel = 'bajo';
-
-    return { nivel, puntos, factores };
-};
+const { predecirRiesgo } = require('./modeloML');
 
 const analizarEstudiantes = async (req, res) => {
     try {
@@ -91,7 +40,7 @@ const analizarEstudiantes = async (req, res) => {
                 conductas_malas: parseInt(conducta.rows[0].malas),
             };
 
-            const riesgo = calcularRiesgo(datos);
+            const riesgo = predecirRiesgo(datos);
             resultados.push({ estudiante, datos, riesgo });
 
             if (riesgo.nivel === 'alto') {
@@ -101,21 +50,27 @@ const analizarEstudiantes = async (req, res) => {
 
                 if (director.rows.length > 0) {
                     const mensaje = `
-                        El estudiante <strong>${estudiante.nombre} ${estudiante.apellido}</strong> 
-                        (Grado ${estudiante.grado} - ${estudiante.seccion}) 
-                        ha sido identificado en <strong>RIESGO ALTO</strong>.<br><br>
-                        <strong>Factores detectados:</strong><br>
-                        ${riesgo.factores.map(f => `• ${f}`).join('<br>')}
+                        <p>Estimada Dirección,</p>
+                        <p>El sistema de análisis inteligente ha identificado al estudiante
+                        <strong>${estudiante.nombre} ${estudiante.apellido}</strong>
+                        (Grado ${estudiante.grado} · Sección ${estudiante.seccion}) en
+                        <strong style="color:#dc2626">RIESGO ALTO</strong>, lo que sugiere la conveniencia
+                        de una intervención temprana.</p>
+                        <p><strong>Factores detectados por el modelo:</strong></p>
+                        <ul>
+                            ${riesgo.factores.map(f => `<li>${f}</li>`).join('')}
+                        </ul>
+                        <p>Se recomienda coordinar el acompañamiento correspondiente con los docentes y la familia.</p>
+                        <p><strong>Unidad Educativa Adventista Salomón</strong><br><em>#MásQueEnseñanza</em></p>
                     `;
 
                     await enviarEmail(
                         director.rows[0].email,
-                        `⚠️ EduTrack: Alerta de riesgo - ${estudiante.nombre} ${estudiante.apellido}`,
+                        `Alerta de riesgo académico — ${estudiante.nombre} ${estudiante.apellido}`,
                         mensaje
                     );
                 }
 
-                // Notificar al padre
                 const tutor = await pool.query(
                     `SELECT u.email, u.nombre FROM usuarios u
                      JOIN estudiantes e ON e.tutor_id = u.id
@@ -126,20 +81,21 @@ const analizarEstudiantes = async (req, res) => {
                 if (tutor.rows.length > 0) {
                     await enviarEmail(
                         tutor.rows[0].email,
-                        `⚠️ EduTrack — Alerta académica: ${estudiante.nombre} ${estudiante.apellido}`,
+                        `Acompañemos juntos a ${estudiante.nombre} — U.E. Adventista Salomón`,
                         `
-                        <h2>Alerta Académica</h2>
                         <p>Estimado/a ${tutor.rows[0].nombre},</p>
-                        <p>El sistema ha detectado que su hijo/a <strong>${estudiante.nombre} ${estudiante.apellido}</strong>
-                        está en <strong style="color:#dc2626">RIESGO ALTO</strong> académico.</p>
-                        <br>
-                        <h3>Factores detectados:</h3>
+                        <p>Le escribimos con cariño y con el sincero deseo de acompañar a
+                        <strong>${estudiante.nombre} ${estudiante.apellido}</strong> en su camino escolar.</p>
+                        <p>Hemos notado algunas señales en su desempeño reciente que nos gustaría compartir con usted,
+                        no como motivo de preocupación, sino como una oportunidad para apoyarle juntos a tiempo:</p>
                         <ul>
                             ${riesgo.factores.map(f => `<li>${f}</li>`).join('')}
                         </ul>
-                        <br>
-                        <p>Por favor comuníquese con la institución a la brevedad.</p>
-                        <p><strong>Unidad Educativa Adventista Salomón</strong></p>
+                        <p>Creemos de corazón que, con el acompañamiento de su familia y de nuestros docentes,
+                        ${estudiante.nombre} puede superar este momento y alcanzar todo su potencial.</p>
+                        <p>Le invitamos a comunicarse con nosotros cuando guste, para conversar y trabajar
+                        de la mano por su bienestar y crecimiento.</p>
+                        <p>Con aprecio,<br><strong>Unidad Educativa Adventista Salomón</strong><br><em>#MásQueEnseñanza</em></p>
                         `
                     );
                 }
@@ -198,7 +154,7 @@ const obtenerRiesgoEstudiante = async (req, res) => {
             conductas_malas: parseInt(conducta.rows[0].malas),
         };
 
-        const riesgo = calcularRiesgo(datos);
+        const riesgo = predecirRiesgo(datos);
 
         res.json({ estudiante: estudiante.rows[0], datos, riesgo });
 
