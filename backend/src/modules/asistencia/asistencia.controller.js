@@ -1,5 +1,6 @@
 const pool = require('../../config/database');
 const { enviarEmail } = require('../../config/email');
+
 const registrarAsistencia = async (req, res) => {
     try {
         const { estudiante_id, estado, observacion } = req.body;
@@ -26,34 +27,48 @@ const registrarAsistencia = async (req, res) => {
             [estudiante_id, docente_id, fecha, estado, observacion]
         );
 
-        if (estado === 'ausente' || estado === 'tardanza') {
-            const mensaje = estado === 'ausente'
-                ? `Su hijo/a estuvo AUSENTE el día ${fecha}`
-                : `Su hijo/a llegó TARDE el día ${fecha}`;
-        
-            const tutor = await pool.query(
-                `SELECT u.email, e.nombre, e.apellido
-                 FROM estudiantes e
-                 JOIN usuarios u ON e.tutor_id = u.id
-                 WHERE e.id = $1 AND e.tutor_id IS NOT NULL`,
-                [estudiante_id]
-            );
-        
-            if (tutor.rows.length > 0) {
-                await pool.query(
-                    `INSERT INTO notificaciones (usuario_id, tipo, mensaje, canal)
-                     SELECT tutor_id, 'ausencia', $1, 'email'
-                     FROM estudiantes WHERE id = $2 AND tutor_id IS NOT NULL`,
-                    [mensaje, estudiante_id]
-                );
-        
-                await enviarEmail(
-                    tutor.rows[0].email,
-                    `EduTrack: Asistencia de ${tutor.rows[0].nombre} ${tutor.rows[0].apellido}`,
-                    mensaje
-                );
+        const tutor = await pool.query(
+            `SELECT u.email, e.nombre, e.apellido
+             FROM estudiantes e
+             JOIN usuarios u ON e.tutor_id = u.id
+             WHERE e.id = $1 AND e.tutor_id IS NOT NULL`,
+            [estudiante_id]
+        );
+
+        if (tutor.rows.length > 0) {
+            let mensaje;
+            switch (estado) {
+                case 'ausente':
+                    mensaje = `Le informamos que su hijo/a estuvo AUSENTE el día ${fecha}.`;
+                    break;
+                case 'tardanza':
+                    mensaje = `Le informamos que su hijo/a llegó TARDE el día ${fecha}.`;
+                    break;
+                case 'presente':
+                    mensaje = `Le informamos que su hijo/a asistió con NORMALIDAD (PRESENTE) el día ${fecha}.`;
+                    break;
+                default:
+                    mensaje = `Le informamos que el estado de asistencia de su hijo/a fue "${estado}" el día ${fecha}.`;
             }
+
+            if (observacion && observacion.trim() !== '') {
+                mensaje += ` Observación del docente: ${observacion}`;
+            }
+
+            await pool.query(
+                `INSERT INTO notificaciones (usuario_id, tipo, mensaje, canal)
+                 SELECT tutor_id, 'asistencia', $1, 'email'
+                 FROM estudiantes WHERE id = $2 AND tutor_id IS NOT NULL`,
+                [mensaje, estudiante_id]
+            );
+
+            await enviarEmail(
+                tutor.rows[0].email,
+                `EduTrack: Asistencia de ${tutor.rows[0].nombre} ${tutor.rows[0].apellido}`,
+                mensaje
+            );
         }
+
         await pool.query(
             `INSERT INTO auditoria (usuario_id, accion, tabla_afectada, registro_id, valor_nuevo, ip)
              VALUES ($1, 'crear', 'asistencia', $2, $3, $4)`,
