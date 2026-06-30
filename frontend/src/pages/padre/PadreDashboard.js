@@ -78,11 +78,41 @@ const PadreDashboard = () => {
         }
     };
     
+    const refrescarDatosHijo = async (hijoId) => {
+        try {
+            const [rA, rN, rP, rT, rC] = await Promise.all([
+                api.get(`/asistencia/estudiante/${hijoId}`),
+                api.get(`/notas/estudiante/${hijoId}`),
+                api.get(`/notas/promedio/${hijoId}`),
+                api.get(`/tareas/estudiante/${hijoId}`),
+                api.get(`/conducta/estudiante/${hijoId}`),
+            ]);
+            setAsistencia(rA.data);
+            setNotas(rN.data);
+            setPromedio(rP.data);
+            setTareas(rT.data.tareas);
+            setConducta(rC.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     useEffect(() => {
         cargarHijos();
         cargarNotificaciones();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    useEffect(() => {
+        const intervalo = setInterval(() => {
+            cargarNotificaciones();
+            if (hijoSeleccionado) {
+                refrescarDatosHijo(hijoSeleccionado.id);
+            }
+        }, 15000);
+        return () => clearInterval(intervalo);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [hijoSeleccionado]);
 
     const colorNota = (v) => v >= 70 ? '#34d399' : v >= 51 ? '#fbbf24' : '#f87171';
 
@@ -205,7 +235,7 @@ const PadreDashboard = () => {
                                         {asistencia.length === 0 ? (
                                             <p style={estilos.vacio}>Sin registros de asistencia</p>
                                         ) : asistencia.map((a, i) => {
-                                            const c = colorAsistencia[a.estado];
+                                            const c = colorAsistencia[(a.estado || '').toLowerCase()] || colorAsistencia.presente;
                                             return (
                                                 <div key={i} style={{ ...estilos.fila, borderLeft: `3px solid ${c?.color}` }}>
                                                     <div style={estilos.filaFecha}>{new Date(a.fecha).toLocaleDateString('es-BO', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
@@ -277,11 +307,13 @@ const PadreDashboard = () => {
         ) : conducta.map((c, i) => {
             const colores = {
                 excelente: { color: '#34d399', bg: 'rgba(52,211,153,0.1)', border: 'rgba(52,211,153,0.2)' },
+                buena: { color: '#60a5fa', bg: 'rgba(96,165,250,0.1)', border: 'rgba(96,165,250,0.2)' },
                 bueno: { color: '#60a5fa', bg: 'rgba(96,165,250,0.1)', border: 'rgba(96,165,250,0.2)' },
                 regular: { color: '#fbbf24', bg: 'rgba(251,191,36,0.1)', border: 'rgba(251,191,36,0.2)' },
+                mala: { color: '#f87171', bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.2)' },
                 malo: { color: '#f87171', bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.2)' },
             };
-            const col = colores[c.nivel];
+            const col = colores[(c.nivel || '').toLowerCase()] || colores.regular;
             return (
                 <div key={i} style={{ ...estilos.fila, borderLeft: `3px solid ${col?.color}` }}>
                     <div style={{ flex: 1 }}>
